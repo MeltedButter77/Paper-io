@@ -7,12 +7,12 @@ clock = pygame.time.Clock()
 
 keys = []
 key = None
-x, y = 10, 10
 length = 1
 speed = 200  # snake moves every speed milliseconds
-snake = [{'rect': pygame.Rect(x, y, 10, 10), 'color': (0, 0, 255)}]
 pygame.time.set_timer(pygame.USEREVENT, speed)
 isAlive = True
+
+snake = [(0,0)]
 
 while True:
     while isAlive:
@@ -30,8 +30,7 @@ while True:
 
             if event.type == pygame.USEREVENT:
                 if key == pygame.K_w:
-                    y -= 10
-                    print("up")
+                    snake.append(snake[0][0] + 20, snake[0[1]])
                 if key == pygame.K_s:
                     y += 10
                     print("down")
