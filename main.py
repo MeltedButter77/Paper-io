@@ -25,11 +25,16 @@ running = True
 
 # Create game loop
 while running:
+    # Loop through every event inputted to pygame from the user (this may be multiple per frame)
     for event in pygame.event.get():
+        # if the event type is clicking the quit button
         if event.type == pygame.QUIT:
             running = False
+        # if the snake is alive
         if is_alive:
+            # if the event type is pressing a key down
             if event.type == pygame.KEYDOWN:
+                # if the key being pressed is x, change snake_direction to relavant direction
                 if event.key == pygame.K_s:
                     snake_direction = 'down'
                 if event.key == pygame.K_w:
@@ -38,9 +43,7 @@ while running:
                     snake_direction = 'left'
                 if event.key == pygame.K_d:
                     snake_direction = 'right'
-
-                if event.key == pygame.K_f:
-                    snake.insert(0, snake[0])
+            # if the event type is the userevent (triggered every 200 milliseconds)
             if event.type == pygame.USEREVENT:
                 # Get current head
                 x, y = snake[-1][0], snake[-1][1]
@@ -53,27 +56,34 @@ while running:
                     snake.append((x - grid_size, y))
                 if snake_direction == 'right':
                     snake.append((x + grid_size, y))
+                # Remove last pieve of snake
                 snake.pop(0)
+        # else if snake is dead
         else:
+            # if event type is a key being pressed down
             if event.type == pygame.KEYDOWN:
+                # if the event key is the space bar
                 if event.key == pygame.K_SPACE:
+                    # Reset snake information
                     snake = [(5 * grid_size, 5 * grid_size), (4 * grid_size, 5 * grid_size)]
                     snake_direction = 'right'
                     is_alive = True
 
-        # iterate through the snake excluding the head
-        body = snake.copy()
-        body.pop(-1)
-        for body_piece in body:
-            # Check for Collisions with the body
-            if snake[-1] == body_piece and len(snake) > 3:
-                is_alive = False
-        # Check for Collisions with the cherry
-        if snake[-1] == cherry_location:
-            snake.insert(0, snake[0])
+    # Copy the snake body and remove the head
+    body = snake.copy()
+    body.pop(-1)
+    # iterate through the snake excluding the head
+    for body_piece in body:
+        # Check for Collisions with the body
+        if snake[-1] == body_piece and len(snake) > 3:
+            is_alive = False
+
+    # Check for Collisions between the cherry and the head
+    if snake[-1] == cherry_location:
+        snake.insert(0, snake[0])
+        cherry_location = random.randint(0, round(screen.get_width() / grid_size) - 1) * grid_size, random.randint(0, round(screen.get_height() / grid_size) - 1) * grid_size
+        while cherry_location in snake:
             cherry_location = random.randint(0, round(screen.get_width() / grid_size) - 1) * grid_size, random.randint(0, round(screen.get_height() / grid_size) - 1) * grid_size
-            while cherry_location in snake:
-                cherry_location = random.randint(0, round(screen.get_width() / grid_size) - 1) * grid_size, random.randint(0, round(screen.get_height() / grid_size) - 1) * grid_size
 
     # Draws the snake
     for body in snake:
@@ -100,7 +110,6 @@ while running:
     # Ratelimit program to run at 60 frames per second
     clock.tick(60)
 
-
+# Quits the pygame window, then the application
 pygame.quit()
 sys.exit()
-quit()
