@@ -34,7 +34,7 @@ while running:
         if is_alive:
             # if the event type is pressing a key down
             if event.type == pygame.KEYDOWN:
-                # if the key being pressed is x, change snake_direction to relavant direction
+                # if the key being pressed is x, change snake_direction to relevant direction
                 if event.key == pygame.K_s:
                     snake_direction = 'down'
                 if event.key == pygame.K_w:
@@ -49,14 +49,27 @@ while running:
                 x, y = snake[-1][0], snake[-1][1]
                 # Add new block of body in appropriate direction
                 if snake_direction == 'down':
-                    snake.append((x, y + grid_size))
+                    x, y = x, y + grid_size
                 if snake_direction == 'up':
-                    snake.append((x, y - grid_size))
+                    x, y = x, y - grid_size
                 if snake_direction == 'left':
-                    snake.append((x - grid_size, y))
+                    x, y = x - grid_size, y
                 if snake_direction == 'right':
-                    snake.append((x + grid_size, y))
-                # Remove last pieve of snake
+                    x, y = x + grid_size, y
+                
+                # If the new location goes off-screen, loop it around
+                if x > screen.get_width() - grid_size:
+                    x = 0
+                if x < 0:
+                    x = screen.get_width() - grid_size
+                if y > screen.get_height() - grid_size:
+                    y = 0
+                if y < 0:
+                    y = screen.get_height() - grid_size
+                
+                # Add piece to the snake
+                snake.append((x, y))
+                # Remove last piece of snake
                 snake.pop(0)
         # else if snake is dead
         else:
@@ -99,7 +112,7 @@ while running:
     pygame.draw.rect(screen, (255, 0, 0), cherry_rect)
 
     # Create a surface with text on it
-    textsurface = font.render(str(len(snake)), False, "blue")
+    textsurface = font.render("Length: " + str(len(snake)), False, "white")
     # Draw the textSurface to the screen
     screen.blit(textsurface, (10, 10))
 
