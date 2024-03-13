@@ -1,5 +1,6 @@
 import random
 import pygame
+import sys
 
 # Pygame and window setup
 pygame.init()
@@ -69,11 +70,10 @@ while running:
                     snake_direction = 'right'
                     is_alive = True
 
-    # Copy the snake body and remove the head
-    body = snake.copy()
-    body.pop(-1)
     # iterate through the snake excluding the head
-    for body_piece in body:
+    for body_piece in snake:
+        if snake.index(body_piece) == len(snake) - 1:
+            continue
         # Check for Collisions with the body
         if snake[-1] == body_piece and len(snake) > 3:
             is_alive = False
