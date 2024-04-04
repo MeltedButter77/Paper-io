@@ -18,6 +18,7 @@ apple = pygame.Rect(grid_size * 3, grid_size * 3, grid_size, grid_size)
 pygame.time.set_timer(pygame.USEREVENT, 250)
 isAlive = True
 while True:
+    # Alive TRUE and FALSE act as separate games.
     while not isAlive:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
