@@ -73,18 +73,25 @@ while True:
                 if direction == "down":
                     body.insert(0, copy.copy(head))
                     head.y = head.y + grid_size
-                if direction:
-                    body.pop()
 
                 if head.colliderect(apple):
                     apple.x = random.randint(0, (screen.get_width() - grid_size) // grid_size) * grid_size
                     apple.y = random.randint(0, (screen.get_height() - grid_size) // grid_size) * grid_size
                     body.insert(-1, pygame.Rect(body[-1].x, body[-1].y, grid_size, grid_size))
 
+                if head.right > (screen.get_width() - grid_size) or head.left < 0:
+                    isAlive = False
+                if head.top < 0 or head.bottom > (screen.get_height() - grid_size):
+                    isAlive = False
+
                 for segment in body:
                     # Check for Collisions with the body
                     if segment.topleft == head.topleft:
                         isAlive = False
+
+                # Remove the tail last so if it dies it doesnt move
+                if direction:
+                    body.pop()
 
         # Rendering every frame
         screen.fill((64, 64, 64))
