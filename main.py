@@ -52,13 +52,17 @@ while True:
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    direction = "right"
+                    if not direction == 'left':
+                        direction = "right"
                 if event.key == pygame.K_LEFT:
-                    direction = "left"
+                    if not direction == 'right':
+                        direction = "left"
                 if event.key == pygame.K_UP:
-                    direction = "up"
+                    if not direction == 'down':
+                        direction = "up"
                 if event.key == pygame.K_DOWN:
-                    direction = "down"
+                    if not direction == 'up':
+                        direction = "down"
                 if event.key == pygame.K_SPACE:
                     body.insert(-1, pygame.Rect(body[-1].x, body[-1].y, grid_size, grid_size))
             if event.type == pygame.USEREVENT:
