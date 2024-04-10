@@ -91,10 +91,10 @@ while True:
 
                 for segment in body:
                     # Check for Collisions with the body
-                    if segment.topleft == head.topleft:
+                    if head.colliderect(segment):
                         isAlive = False
 
-                # Remove the tail last so if it dies it doesnt move
+                # If moving, remove the last segment
                 if direction:
                     body.pop()
 
