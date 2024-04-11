@@ -11,7 +11,7 @@ head = pygame.Rect(grid_size * 5, grid_size * 5, grid_size, grid_size)
 body = [
     pygame.Rect(grid_size * 4, grid_size * 5, grid_size, grid_size)
 ]
-direction = "up"
+direction = "down"
 
 apple = pygame.Rect(grid_size * 3, grid_size * 3, grid_size, grid_size)
 
