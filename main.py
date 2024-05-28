@@ -1,110 +1,64 @@
-import random
-import sys
 import pygame
-import copy
 pygame.init()
-screen = pygame.display.set_mode((800, 600))
-font = pygame.font.SysFont("Segoe UI", 35)
 
-grid_size = 20
-head = pygame.Rect(grid_size * 5, grid_size * 5, grid_size, grid_size)
-body = [
-    pygame.Rect(grid_size * 4, grid_size * 5, grid_size, grid_size)
-]
-direction = "down"
+screen = pygame.display.set_mode((600, 600))
+grid_size = 30
 
-apple = pygame.Rect(grid_size * 3, grid_size * 3, grid_size, grid_size)
+time_delay = 1000
+timer_event = pygame.USEREVENT+1
+pygame.time.set_timer(timer_event, time_delay)
 
-pygame.time.set_timer(pygame.USEREVENT, 250)
-isAlive = True
+
+class Snake():
+    def __init__(self, location, controls):
+        self.head = pygame.Rect(location, (grid_size, grid_size))
+        self.body = []
+
+        self.controls = controls
+
+        self.direction = None
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == self.controls[0]:
+                self.direction = 'left'
+            elif event.key == self.controls[1]:
+                self.direction = 'right'
+            elif event.key == self.controls[2]:
+                self.direction = 'up'
+            elif event.key == self.controls[3]:
+                self.direction = 'down'
+        elif event.type == timer_event:
+            if self.direction == 'left':
+                self.head.x -= grid_size
+            elif self.direction == 'right':
+                self.head.x += grid_size
+            elif self.direction == 'up':
+                self.head.y -= grid_size
+            elif self.direction == 'down':
+                self.head.y += grid_size
+            self.body.append(self.head.copy())
+
+    def draw(self):
+        pygame.draw.rect(screen, "green", self.head)
+        for rect in self.body:
+            pygame.draw.rect(screen, "green", rect)
+
+
+snake1 = Snake((5 * grid_size, 5 * grid_size), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN))
+snake2 = Snake((15 * grid_size, 15 * grid_size), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s))
+snakes = [snake1, snake2]
+
 while True:
-    # Alive TRUE and FALSE act as separate games.
-    while not isAlive:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    # Reset game
-                    head = pygame.Rect(grid_size * 5, grid_size * 5, grid_size, grid_size)
-                    body = [
-                        pygame.Rect(grid_size * 4, grid_size * 5, grid_size, grid_size)
-                    ]
-                    direction = "up"
-                    isAlive = True
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
+        for snake in snakes:
+            snake.handle_event(event)
 
-        # Rendering every frame
-        screen.fill((64, 64, 64))
-        textsurface = font.render("GAME OVER", False, "red")  # "text", antialias, color
-        screen.blit(textsurface, (200, 200))
+    screen.fill("gray")
+    for snake in snakes:
+        snake.draw()
 
-        for square in body:
-            pygame.draw.rect(screen, "blue", square)
-        pygame.draw.rect(screen, "blue", head)
-        pygame.draw.rect(screen, "red", apple)
-        pygame.display.update()
-
-    while isAlive:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
-                    if not direction == 'left':
-                        direction = "right"
-                if event.key == pygame.K_LEFT:
-                    if not direction == 'right':
-                        direction = "left"
-                if event.key == pygame.K_UP:
-                    if not direction == 'down':
-                        direction = "up"
-                if event.key == pygame.K_DOWN:
-                    if not direction == 'up':
-                        direction = "down"
-                if event.key == pygame.K_SPACE:
-                    body.insert(-1, pygame.Rect(body[-1].x, body[-1].y, grid_size, grid_size))
-            if event.type == pygame.USEREVENT:
-                if direction == "right":
-                    body.insert(0, copy.copy(head))
-                    head.x = head.x + grid_size
-                if direction == "left":
-                    body.insert(0, copy.copy(head))
-                    head.x = head.x - grid_size
-                if direction == "up":
-                    body.insert(0, copy.copy(head))
-                    head.y = head.y - grid_size
-                if direction == "down":
-                    body.insert(0, copy.copy(head))
-                    head.y = head.y + grid_size
-
-                if head.colliderect(apple):
-                    apple.x = random.randint(0, (screen.get_width() - grid_size) // grid_size) * grid_size
-                    apple.y = random.randint(0, (screen.get_height() - grid_size) // grid_size) * grid_size
-                    body.insert(-1, pygame.Rect(body[-1].x, body[-1].y, grid_size, grid_size))
-
-                if head.right > (screen.get_width() - grid_size) or head.left < 0:
-                    isAlive = False
-                if head.top < 0 or head.bottom > (screen.get_height() - grid_size):
-                    isAlive = False
-
-                for segment in body:
-                    # Check for Collisions with the body
-                    if head.colliderect(segment):
-                        isAlive = False
-
-                # If moving, remove the last segment
-                if direction:
-                    body.pop()
-
-        # Rendering every frame
-        screen.fill((64, 64, 64))
-        textsurface = font.render(f"Length: {int(len(body) + 1)}", False, "white")  # "text", antialias, color
-        screen.blit(textsurface, (2, 2))
-
-        for square in body:
-            pygame.draw.rect(screen, "blue", square)
-        pygame.draw.rect(screen, "blue", head)
-        pygame.draw.rect(screen, "red", apple)
-        pygame.display.update()
+    pygame.display.update()
