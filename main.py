@@ -4,7 +4,7 @@ pygame.init()
 screen = pygame.display.set_mode((600, 600))
 grid_size = 30
 
-time_delay = 1000
+time_delay = 200
 timer_event = pygame.USEREVENT+1
 pygame.time.set_timer(timer_event, time_delay)
 
@@ -12,9 +12,10 @@ pygame.time.set_timer(timer_event, time_delay)
 class Snake():
     def __init__(self, location, controls):
         self.head = pygame.Rect(location, (grid_size, grid_size))
-        self.body = []
+        self.body = [self.head.copy()]
 
         self.controls = controls
+        self.isAlive = True
 
         self.direction = None
 
@@ -37,7 +38,17 @@ class Snake():
                 self.head.y -= grid_size
             elif self.direction == 'down':
                 self.head.y += grid_size
-            self.body.append(self.head.copy())
+            if self.direction:
+                self.body.insert(0, self.head.copy())
+                self.body.pop()
+
+            if head.right > (screen.get_width() - grid_size) or head.left < 0 or head.top < 0 or head.bottom > (screen.get_height() - grid_size):
+                self.isAlive = False
+
+            for segment in body:
+                # Check for Collisions with the body
+                if head.colliderect(segment):
+                    self.isAlive = False
 
     def draw(self):
         pygame.draw.rect(screen, "green", self.head)
