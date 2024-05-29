@@ -22,7 +22,6 @@ class Snake():
 
     def handle_event(self, event):
         if not self.isAlive:
-            print(self.isAlive)
             return
         if event.type == pygame.KEYDOWN:
             if event.key == self.controls[0]:
@@ -54,13 +53,11 @@ class Snake():
                     self.body.insert(-1, pygame.Rect(self.body[-1].x, self.body[-1].y, grid_size, grid_size))
 
             if self.head.right > (screen.get_width() - grid_size) or self.head.left < 0 or self.head.top < 0 or self.head.bottom > (screen.get_height() - grid_size):
-                print("1")
                 self.isAlive = False
 
             for segment in self.body:
                 # Check for Collisions with the body
                 if self.head.colliderect(segment):
-                    print("2", self.head, segment)
                     self.isAlive = False
 
     def draw(self):
@@ -73,7 +70,7 @@ class Snake():
         for rect in self.body:
             pygame.draw.rect(screen, colour, rect)
 
-
+# Setup, the game can be changed my modifying this without having to change the logic above!
 snake1 = Snake((5 * grid_size, 5 * grid_size), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN))
 snake2 = Snake((15 * grid_size, 15 * grid_size), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s))
 snakes = [snake1, snake2]
