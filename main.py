@@ -11,32 +11,81 @@ time_delay = 200
 timer_event = pygame.USEREVENT + 1
 pygame.time.set_timer(timer_event, time_delay)
 
+area = {
+    (5 * grid_size, 5 * grid_size): "green",
+    (6 * grid_size, 5 * grid_size): "green",
+    (7 * grid_size, 5 * grid_size): "green",
+    (5 * grid_size, 6 * grid_size): "green",
+    (6 * grid_size, 6 * grid_size): "green",
+    (7 * grid_size, 6 * grid_size): "green",
+    (5 * grid_size, 7 * grid_size): "green",
+    (6 * grid_size, 7 * grid_size): "green",
+    (7 * grid_size, 7 * grid_size): "green",
+}
 
-# Create the main "Snake" class, this will house the repeated logic for each snake.
+
+def is_point_in_polygon(point, polygon):
+    """Uses the ray-casting algorithm to determine if a point is in the polygon."""
+    x_intersections = 0
+    px, py = point
+    n = len(polygon)
+
+    for i in range(n):
+        x1, y1 = polygon[i]
+        x2, y2 = polygon[(i + 1) % n]  # Wrap around to the first point for the last segment
+
+        # Check if point is on the same y-coordinate and between the y-coordinates of the segment
+        if (y1 > py) != (y2 > py):
+            # Compute the x coordinate of the intersection of the line with the y-coordinate of the point
+            x_intersect = (x2 - x1) * (py - y1) / (y2 - y1) + x1
+
+            # Check if the point is to the left of the test point
+            if px < x_intersect:
+                x_intersections += 1
+
+    # Point is inside if the number of intersections is odd
+    return x_intersections % 2 == 1
+
+
+def get_bounding_box(polygon):
+    """Returns the bounding box for the polygon."""
+    min_x = min(polygon, key=lambda p: p[0])[0]
+    max_x = max(polygon, key=lambda p: p[0])[0]
+    min_y = min(polygon, key=lambda p: p[1])[1]
+    max_y = max(polygon, key=lambda p: p[1])[1]
+    return min_x, max_x, min_y, max_y
+
+
+def points_within_polygon(polygon, grid_size=grid_size):
+    """Returns all integer points within the polygon."""
+    min_x, max_x, min_y, max_y = get_bounding_box(polygon)
+    points_inside = []
+
+    for x in range(int(min_x) // grid_size, (int(max_x) + (grid_size * 3)) // grid_size):
+        for y in range(int(min_y) // grid_size, (int(max_y) + grid_size) // grid_size):
+            if is_point_in_polygon((x * grid_size, y * grid_size), polygon):
+                points_inside.append((x * grid_size, y * grid_size))
+
+    return points_inside
+
+
 class Snake:
-    # __init__ is the constructor for any class. It is always required. This one has "location" and "controls" set as inputs.
     def __init__(self, location, controls):
-        # self.variable will create an attribute (which is a variable) generic to this class, meaning any objects made with this class will have these attributes.
-
-        # Store the head as a separate Rect object and the body as a list of Rect objects.
         self.head = pygame.Rect(location, (grid_size, grid_size))
-        self.body = [pygame.Rect((location[0] + grid_size, location[1]), (grid_size, grid_size))]
 
-        # Controls is set as its input
+        self.body = []
         self.controls = controls
 
-        # These booleans are hardcoded as the default state of the snake.
+        self.drawing = False
         self.isAlive = True
         self.direction = None
 
-    # Instead of handling each event separately in the event loop, we will pass them to this "handle_event" method.
-    # This way we can separate our code (so that everything to do with the Snake class is in one place) making it easier to understand.
+        self.colour = "green"
+
     def handle_event(self, event):
-        # If the snake is dead, we will not process any events and instead return nothing.
         if not self.isAlive:
             return
 
-        # Process a KEYDOWN event
         if event.type == pygame.KEYDOWN:
             if event.key == self.controls[0]:
                 self.direction = 'left'
@@ -47,20 +96,11 @@ class Snake:
             elif event.key == self.controls[3]:
                 self.direction = 'down'
 
-        # Process a timer_event, this will move our snake forward at a constant speed.
-        # Notice, if the snake does not have a direction. This entire move code will not run including collision calculations.
         elif event.type == timer_event and self.direction:
 
-            # Moving the snake forward is a 3-step process. This ensures when the snake dies it dies in the correct position.
-            # 1. Add head copy to body
-            # 2. Move the head
-            # 3. Check for collisions on head
+            if self.drawing:
+                self.body.insert(0, self.head.copy())
 
-
-            # Add a copy of head to the body
-            self.body.insert(0, self.head.copy())
-
-            # Move the head forward
             if self.direction == 'left':
                 self.head.x -= grid_size
             elif self.direction == 'right':
@@ -70,47 +110,41 @@ class Snake:
             elif self.direction == 'down':
                 self.head.y += grid_size
 
-            # Check if new head has made collisions with walls, if not delete end tail
-            if (self.head.centerx > (screen.get_width()) or
-                    self.head.centerx < 0 or
-                    self.head.centery < 0 or
-                    self.head.centery > (screen.get_height())):
-                self.isAlive = False
+            owned_locations = [key for key, value in area.items() if value == colour]
+            if self.head.topleft in owned_locations:
+                if self.drawing == True:
+
+                    # Add the body to the area
+                    for rect in self.body:
+                        area[rect.topleft] = self.colour
+
+                    # Get cords of body path
+                    path = [rect.topleft for rect in self.body]
+
+                    # Add all points within path to area
+                    new_points = points_within_polygon(path)
+                    for point in new_points:
+                        area[point] = self.colour
+
+                    # Clear the body and drawing value
+                    self.body = []
+                    self.drawing = False
             else:
-                # Deleting the tail if there is no collision assures the tail doesn't disappear on death despite movement being invalid.
-                self.body.pop()
+                self.drawing = True
 
-            # Loop through the apple Rects in the apples list
-            for apple in apples:
-                # check if the head collides with the apple
-                if self.head.colliderect(apple):
-                    apple.x = random.randint(0, (screen.get_width() - grid_size) // grid_size) * grid_size
-                    apple.y = random.randint(0, (screen.get_height() - grid_size) // grid_size) * grid_size
-                    self.body.insert(-1, pygame.Rect(self.body[-1].x, self.body[-1].y, grid_size, grid_size))
-
-            for segment in self.body:
-                # Check for Collisions with the body
-                if self.head.colliderect(segment):
-                    self.isAlive = False
-
-    # A separated draw method is used for a similar reason to the handle_event method.
-    # This allows us to keep the snake logic contained to the class. This is more important later when objects become more complex.
     def draw(self):
-        if self.isAlive:
-            colour = "green"
-        else:
-            colour = "red"
-
-        pygame.draw.rect(screen, colour, self.head)
         for rect in self.body:
-            pygame.draw.rect(screen, colour, rect)
+            pygame.draw.rect(screen, "light green", rect)
 
+        if self.drawing:
+            pygame.draw.rect(screen, "purple", self.head)
+        else:
+            pygame.draw.rect(screen, "light green", self.head)
 
-# The game can be changed my modifying the objects below without having to change the logic above!
 
 # We have created the class, now we need to create objects. This creates instances (in this case 2) of the Snake class allowing us to make as many as we want without having to repeat the snake's logic.
-snake1 = Snake((5 * grid_size, 5 * grid_size), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN))
-snake2 = Snake((15 * grid_size, 15 * grid_size), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s))
+snake1 = Snake((15 * grid_size, 15 * grid_size), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN))
+snake2 = Snake((6 * grid_size, 6 * grid_size), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s))
 # We add the snakes to a list for easy looping.
 snakes = [snake1, snake2]
 
@@ -130,6 +164,8 @@ while True:
             snake.handle_event(event)
 
     # Rendering
+    for loc, colour in area.items():
+        pygame.draw.rect(screen, colour, pygame.Rect(loc, (grid_size, grid_size)))
     for snake in snakes:
         snake.draw()
     for apple in apples:
