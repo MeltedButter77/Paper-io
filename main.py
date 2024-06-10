@@ -12,15 +12,15 @@ timer_event = pygame.USEREVENT + 1
 pygame.time.set_timer(timer_event, time_delay)
 
 area = {
-    (5 * grid_size, 5 * grid_size): "green",
-    (6 * grid_size, 5 * grid_size): "green",
-    (7 * grid_size, 5 * grid_size): "green",
-    (5 * grid_size, 6 * grid_size): "green",
-    (6 * grid_size, 6 * grid_size): "green",
-    (7 * grid_size, 6 * grid_size): "green",
-    (5 * grid_size, 7 * grid_size): "green",
-    (6 * grid_size, 7 * grid_size): "green",
-    (7 * grid_size, 7 * grid_size): "green",
+    (5 * grid_size, 5 * grid_size): pygame.color.Color(0, 200, 0),
+    (6 * grid_size, 5 * grid_size): pygame.color.Color(0, 200, 0),
+    (7 * grid_size, 5 * grid_size): pygame.color.Color(0, 200, 0),
+    (5 * grid_size, 6 * grid_size): pygame.color.Color(0, 200, 0),
+    (6 * grid_size, 6 * grid_size): pygame.color.Color(0, 200, 0),
+    (7 * grid_size, 6 * grid_size): pygame.color.Color(0, 200, 0),
+    (5 * grid_size, 7 * grid_size): pygame.color.Color(0, 200, 0),
+    (6 * grid_size, 7 * grid_size): pygame.color.Color(0, 200, 0),
+    (7 * grid_size, 7 * grid_size): pygame.color.Color(0, 200, 0),
 }
 
 
@@ -70,7 +70,7 @@ def points_within_polygon(polygon, grid_size=grid_size):
 
 
 class Snake:
-    def __init__(self, location, controls):
+    def __init__(self, location, colour, controls):
         self.head = pygame.Rect(location, (grid_size, grid_size))
 
         self.body = []
@@ -80,7 +80,7 @@ class Snake:
         self.isAlive = True
         self.direction = None
 
-        self.colour = "green"
+        self.colour = pygame.color.Color(colour)
 
     def handle_event(self, event):
         if not self.isAlive:
@@ -112,8 +112,7 @@ class Snake:
 
             owned_locations = [key for key, value in area.items() if value == colour]
             if self.head.topleft in owned_locations:
-                if self.drawing == True:
-
+                if self.drawing:
                     # Add the body to the area
                     for rect in self.body:
                         area[rect.topleft] = self.colour
@@ -134,24 +133,19 @@ class Snake:
 
     def draw(self):
         for rect in self.body:
-            pygame.draw.rect(screen, "light green", rect)
+            pygame.draw.rect(screen, self.colour, rect)
 
         if self.drawing:
             pygame.draw.rect(screen, "purple", self.head)
         else:
-            pygame.draw.rect(screen, "light green", self.head)
+            pygame.draw.rect(screen, "black", self.head)
 
 
 # We have created the class, now we need to create objects. This creates instances (in this case 2) of the Snake class allowing us to make as many as we want without having to repeat the snake's logic.
-snake1 = Snake((15 * grid_size, 15 * grid_size), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN))
-snake2 = Snake((6 * grid_size, 6 * grid_size), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s))
+snake1 = Snake((15 * grid_size, 15 * grid_size), pygame.color.Color(200, 0, 0), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN))
+snake2 = Snake((6 * grid_size, 6 * grid_size), pygame.color.Color(0, 200, 0), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s))
 # We add the snakes to a list for easy looping.
 snakes = [snake1, snake2]
-
-# Similar deal with the apples, but they do not need a custom class. A simple Rect object can be used.
-apple1 = pygame.Rect(grid_size * 3, grid_size * 3, grid_size, grid_size)
-apple2 = pygame.Rect(grid_size * 3, grid_size * 3, grid_size, grid_size)
-apples = [apple1, apple2]
 
 # This is the entire game loop. Look how much smaller and easier it is to read now that we are using objects!
 while True:
@@ -168,8 +162,6 @@ while True:
         pygame.draw.rect(screen, colour, pygame.Rect(loc, (grid_size, grid_size)))
     for snake in snakes:
         snake.draw()
-    for apple in apples:
-        pygame.draw.rect(screen, "red", apple)
 
     # Don't forget to update the screen after rendering
     pygame.display.update()
