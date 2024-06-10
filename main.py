@@ -47,18 +47,12 @@ def is_point_in_polygon(point, polygon):
     return x_intersections % 2 == 1
 
 
-def get_bounding_box(polygon):
-    """Returns the bounding box for the polygon."""
+def points_within_polygon(polygon, grid_size=grid_size):
+    """Returns all integer points within the polygon."""
     min_x = min(polygon, key=lambda p: p[0])[0]
     max_x = max(polygon, key=lambda p: p[0])[0]
     min_y = min(polygon, key=lambda p: p[1])[1]
     max_y = max(polygon, key=lambda p: p[1])[1]
-    return min_x, max_x, min_y, max_y
-
-
-def points_within_polygon(polygon, grid_size=grid_size):
-    """Returns all integer points within the polygon."""
-    min_x, max_x, min_y, max_y = get_bounding_box(polygon)
     points_inside = []
 
     for x in range(int(min_x) // grid_size, (int(max_x) + (grid_size * 3)) // grid_size):
