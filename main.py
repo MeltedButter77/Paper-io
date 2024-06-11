@@ -13,6 +13,24 @@ pygame.time.set_timer(timer_event, time_delay)
 area = {}
 
 
+def get_outline(points):
+    # Convert list of points into a set for O(1) complexity checks
+    point_set = set(points)
+
+    # Directions for checking neighbors: up, down, left, right
+    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+    # List to hold the boundary points
+    boundary_points = []
+
+    # Check each point to see if it is on the boundary
+    for x, y in points:
+        if any((x + dx, y + dy) not in point_set for dx, dy in directions):
+            boundary_points.append((x, y))
+
+    return boundary_points
+
+
 def is_point_in_polygon(point, polygon):
     """Uses the ray-casting algorithm to determine if a point is in the polygon."""
     x_intersections = 0
@@ -134,12 +152,17 @@ class Snake(pygame.sprite.Sprite):
                     for rect in self.body:
                         area[rect.topleft] = self.colour
 
+                    owned_locations = [key for key, value in area.items() if value == self.colour]
+
                     # Get cords of body path
-                    path = [rect.topleft for rect in self.body]
+                    outline = get_outline(owned_locations)
+
+                    ###  This is not working properly because the outline's order is not always in a continuous line
 
                     # Add all points within path to area
-                    new_points = points_within_polygon(path)
+                    new_points = points_within_polygon(outline)
                     for point in new_points:
+                        print(point)
                         area[point] = self.colour
 
                     # Clear the body and drawing value
