@@ -1,10 +1,9 @@
 import pygame
-import random
 
 pygame.init()
 
-screen = pygame.display.set_mode((600, 600))
-grid_size = 30
+screen = pygame.display.set_mode((800, 800))
+grid_size = 20
 
 # Create a "timer_event" which will be triggered evey "time_delay" milliseconds. This will act as an event which will be processed in the event loop.
 time_delay = 200
@@ -53,12 +52,21 @@ def points_within_polygon(polygon, grid_size=grid_size):
     return points_inside
 
 
-class Snake:
-    def __init__(self, location, colour, controls):
+class Snake(pygame.sprite.Sprite):
+    def __init__(self, location, colour, controls, *groups: pygame.sprite.Group):
+        super().__init__(*groups)
+
         self.head = pygame.Rect(location, (grid_size, grid_size))
 
         self.body = []
         self.controls = controls
+        self.snakes = snakes
+
+        self.sprite = pygame.surface.Surface((grid_size, grid_size))
+        self.sprite.fill(colour)
+
+        # We add the snakes to a list for easy looping.
+        self.snakes.add(self)
 
         self.drawing = False
         self.isAlive = True
@@ -72,8 +80,9 @@ class Snake:
             for j in range(3):
                 area[(location[0] - grid_size + j * grid_size, location[1] - grid_size + i * grid_size)] = self.colour
 
-    def handle_event(self, event):
+    def handle_event(self, event, snakes):
         if not self.isAlive:
+            self.kill()
             return
 
         if event.type == pygame.KEYDOWN:
@@ -113,6 +122,11 @@ class Snake:
                     self.direction = None
                     self.head.x -= grid_size
 
+            other_snakes = [snake for snake in snakes if snake != self]
+            for snake in other_snakes:
+                if self.head.collidelistall(snake.body):
+                    snake.isAlive = False
+
             owned_locations = [key for key, value in area.items() if value == self.colour]
             if self.head.topleft in owned_locations:
                 if self.drawing:
@@ -145,10 +159,9 @@ class Snake:
 
 
 # We have created the class, now we need to create objects. This creates instances (in this case 2) of the Snake class allowing us to make as many as we want without having to repeat the snake's logic.
-snake1 = Snake((15 * grid_size, 15 * grid_size), pygame.color.Color(200, 0, 0), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN))
-snake2 = Snake((6 * grid_size, 6 * grid_size), pygame.color.Color(0, 200, 0), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s))
-# We add the snakes to a list for easy looping.
-snakes = [snake1, snake2]
+snakes = pygame.sprite.Group()
+snake1 = Snake((15 * grid_size, 15 * grid_size), pygame.color.Color(200, 0, 0), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN), snakes)
+snake2 = Snake((6 * grid_size, 6 * grid_size), pygame.color.Color(0, 200, 0), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s), snakes)
 
 # This is the entire game loop. Look how much smaller and easier it is to read now that we are using objects!
 while True:
@@ -158,7 +171,7 @@ while True:
             pygame.quit()
             quit()
         for snake in snakes:
-            snake.handle_event(event)
+            snake.handle_event(event, snakes)
 
     # Rendering
     for loc, colour in area.items():
