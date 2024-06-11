@@ -63,6 +63,7 @@ def points_within_polygon(polygon, grid_size=grid_size):
     return points_inside
 
 
+
 class Snake:
     def __init__(self, location, colour, controls):
         self.head = pygame.Rect(location, (grid_size, grid_size))
