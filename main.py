@@ -11,17 +11,7 @@ time_delay = 200
 timer_event = pygame.USEREVENT + 1
 pygame.time.set_timer(timer_event, time_delay)
 
-area = {
-    (5 * grid_size, 5 * grid_size): pygame.color.Color(0, 200, 0),
-    (6 * grid_size, 5 * grid_size): pygame.color.Color(0, 200, 0),
-    (7 * grid_size, 5 * grid_size): pygame.color.Color(0, 200, 0),
-    (5 * grid_size, 6 * grid_size): pygame.color.Color(0, 200, 0),
-    (6 * grid_size, 6 * grid_size): pygame.color.Color(0, 200, 0),
-    (7 * grid_size, 6 * grid_size): pygame.color.Color(0, 200, 0),
-    (5 * grid_size, 7 * grid_size): pygame.color.Color(0, 200, 0),
-    (6 * grid_size, 7 * grid_size): pygame.color.Color(0, 200, 0),
-    (7 * grid_size, 7 * grid_size): pygame.color.Color(0, 200, 0),
-}
+area = {}
 
 
 def is_point_in_polygon(point, polygon):
@@ -63,7 +53,6 @@ def points_within_polygon(polygon, grid_size=grid_size):
     return points_inside
 
 
-
 class Snake:
     def __init__(self, location, colour, controls):
         self.head = pygame.Rect(location, (grid_size, grid_size))
@@ -76,6 +65,12 @@ class Snake:
         self.direction = None
 
         self.colour = pygame.color.Color(colour)
+
+        # Fill 9 squares around location
+        area[location] = self.colour
+        for i in range(3):
+            for j in range(3):
+                area[(location[0] - grid_size + j * grid_size, location[1] - grid_size + i * grid_size)] = self.colour
 
     def handle_event(self, event):
         if not self.isAlive:
@@ -96,16 +91,29 @@ class Snake:
             if self.drawing:
                 self.body.insert(0, self.head.copy())
 
+            # Move snake forward, clear direction values if it hits a wall
             if self.direction == 'left':
                 self.head.x -= grid_size
+                if self.head.centerx < 0:
+                    self.direction = None
+                    self.head.x += grid_size
             elif self.direction == 'right':
                 self.head.x += grid_size
+                if self.head.centerx > screen.get_width():
+                    self.direction = None
+                    self.head.x -= grid_size
             elif self.direction == 'up':
                 self.head.y -= grid_size
+                if self.head.centery < 0:
+                    self.direction = None
+                    self.head.y += grid_size
             elif self.direction == 'down':
                 self.head.y += grid_size
+                if self.head.centery > screen.get_height():
+                    self.direction = None
+                    self.head.x -= grid_size
 
-            owned_locations = [key for key, value in area.items() if value == colour]
+            owned_locations = [key for key, value in area.items() if value == self.colour]
             if self.head.topleft in owned_locations:
                 if self.drawing:
                     # Add the body to the area
