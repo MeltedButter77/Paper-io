@@ -85,7 +85,6 @@ class Snake(pygame.sprite.Sprite):
         self.snakes.add(self)
 
         self.drawing = False
-        self.isAlive = True
         self.direction = None
 
         self.colour = pygame.color.Color(colour)
@@ -97,10 +96,6 @@ class Snake(pygame.sprite.Sprite):
                 self.game.area[(location[0] - self.game.grid_size + j * self.game.grid_size, location[1] - self.game.grid_size + i * self.game.grid_size)] = self.colour
 
     def handle_event(self, event, snakes):
-        if not self.isAlive:
-            self.kill()
-            return
-
         if event.type == pygame.KEYDOWN:
             if event.key == self.controls[0]:
                 self.direction = 'left'
@@ -141,7 +136,7 @@ class Snake(pygame.sprite.Sprite):
             other_snakes = [snake for snake in snakes if snake != self]
             for snake in other_snakes:
                 if self.head.collidelistall(snake.body):
-                    snake.isAlive = False
+                    snake.kill()
 
             # Calc drawing value and  filling area when drawing becomes False
             owned_locations = [key for key, value in self.game.area.items() if value == self.colour]
