@@ -2,6 +2,8 @@ import pygame
 from collections import deque
 
 pygame.init()
+pygame.font.init()
+font = pygame.font.SysFont('Comic Sans MS', 10)
 
 screen = pygame.display.set_mode((800, 800))
 grid_size = 20
@@ -168,7 +170,15 @@ class Snake(pygame.sprite.Sprite):
                     close_path = bfs_shortest_path(owned_locations, start, end, grid_size)  # shortest path between tail and head
 
                     # Get cords of body path and close hole across owned locations
+                    self.body.reverse()
                     outline = close_path + [rect.topleft for rect in self.body]
+
+                    # # Display order of outline
+                    # for i, pos in enumerate(outline):
+                    #     text_surface = font.render(str(i), False, (255, 0, 0))
+                    #     screen.blit(text_surface, pos)
+                    # pygame.display.update()
+                    # input("Press Enter to continue")
 
                     # Add all points within path to area
                     new_points = points_within_polygon(outline)
