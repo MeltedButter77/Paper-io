@@ -53,8 +53,8 @@ def points_within_polygon(polygon, grid_size=grid_size):
     return points_inside
 
 
-def bfs_shortest_path(grid, start, end):
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+def bfs_shortest_path(grid, start, end, grid_size):
+    directions = [(-grid_size, 0), (grid_size, 0), (0, -grid_size), (0, grid_size)]  # Up, Down, Left, Right
 
     grid_dict = {}
     for location in grid:
@@ -124,8 +124,7 @@ class Snake(pygame.sprite.Sprite):
                 self.direction = 'down'
 
         elif event.type == timer_event and self.direction:
-
-
+            # Extend body, if not drawing this will be removed later
             self.body.insert(0, self.head.copy())
 
             # Move snake forward, clear direction values if it hits a wall
@@ -150,6 +149,7 @@ class Snake(pygame.sprite.Sprite):
                     self.direction = None
                     self.head.x -= grid_size
 
+            # Check collisions with other snakes
             other_snakes = [snake for snake in snakes if snake != self]
             for snake in other_snakes:
                 if self.head.collidelistall(snake.body):
@@ -163,15 +163,12 @@ class Snake(pygame.sprite.Sprite):
                     for rect in self.body:
                         area[rect.topleft] = self.colour
 
-                    close_path = bfs_shortest_path(owned_locations, tuple(x/grid_size for x in self.head.topleft), tuple(x/grid_size for x in self.body[-1].topleft)) # shortest path between tail and head
-                    print(owned_locations)
-                    print(self.head.topleft, self.body[-1].topleft)
-                    print(close_path)
+                    start = self.head.topleft
+                    end = self.body[-1].topleft
+                    close_path = bfs_shortest_path(owned_locations, start, end, grid_size)  # shortest path between tail and head
 
-                    # Get cords of body path
-                    outline = [rect.topleft for rect in self.body] + close_path
-
-                    ###  This is not working properly because the outline's order is not always in a continuous line
+                    # Get cords of body path and close hole across owned locations
+                    outline = close_path + [rect.topleft for rect in self.body]
 
                     # Add all points within path to area
                     new_points = points_within_polygon(outline)
@@ -180,13 +177,14 @@ class Snake(pygame.sprite.Sprite):
 
                     # Clear the body and drawing value
                     self.body = []
+
                     self.drawing = False
             else:
                 self.drawing = True
 
-            if not self.drawing:
-                if len(self.body) > 1:
-                    self.body.pop()
+            # When not drawing the body is reduced to a max length of 1
+            if not self.drawing and len(self.body) > 1:
+                self.body.pop()
 
     def draw(self):
         for rect in self.body:
