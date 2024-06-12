@@ -3,7 +3,6 @@ import game
 import menu
 
 window_size = (800, 800)
-
 selected = menu.Menu(window_size, menu="main_menu").run()
 
 while True:
