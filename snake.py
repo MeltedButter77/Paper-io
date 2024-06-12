@@ -135,7 +135,7 @@ class Snake(pygame.sprite.Sprite):
                 self.head.y += self.game.grid_size
                 if self.head.centery > self.game.screen.get_height():
                     self.direction = None
-                    self.head.x -= self.game.grid_size
+                    self.head.y -= self.game.grid_size
 
             # Check collisions with other snakes
             other_snakes = [snake for snake in snakes if snake != self]
