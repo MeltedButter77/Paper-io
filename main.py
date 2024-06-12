@@ -1,4 +1,5 @@
 import pygame
+from collections import deque
 
 pygame.init()
 
@@ -11,24 +12,6 @@ timer_event = pygame.USEREVENT + 1
 pygame.time.set_timer(timer_event, time_delay)
 
 area = {}
-
-
-def get_outline(points):
-    # Convert list of points into a set for O(1) complexity checks
-    point_set = set(points)
-
-    # Directions for checking neighbors: up, down, left, right
-    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-
-    # List to hold the boundary points
-    boundary_points = []
-
-    # Check each point to see if it is on the boundary
-    for x, y in points:
-        if any((x + dx, y + dy) not in point_set for dx, dy in directions):
-            boundary_points.append((x, y))
-
-    return boundary_points
 
 
 def is_point_in_polygon(point, polygon):
@@ -68,6 +51,33 @@ def points_within_polygon(polygon, grid_size=grid_size):
                 points_inside.append((x * grid_size, y * grid_size))
 
     return points_inside
+
+
+def bfs_shortest_path(grid, start, end):
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+
+    grid_dict = {}
+    for location in grid:
+        grid_dict[location] = 0
+
+    queue = deque([(start, [start])])
+    visited = set([start])
+
+    while queue:
+        (r, c), path = queue.popleft()
+
+        if (r, c) == end:
+            return path
+
+        for dr, dc in directions:
+            nr, nc = r + dr, c + dc
+
+            if (nr, nc) in grid_dict.keys() and grid_dict[(nr, nc)] == 0 and (nr, nc) not in visited:
+                visited.add((nr, nc))
+                queue.append(((nr, nc), path + [(nr, nc)]))
+
+    print("no path found")
+    return []
 
 
 class Snake(pygame.sprite.Sprite):
@@ -115,8 +125,8 @@ class Snake(pygame.sprite.Sprite):
 
         elif event.type == timer_event and self.direction:
 
-            if self.drawing:
-                self.body.insert(0, self.head.copy())
+
+            self.body.insert(0, self.head.copy())
 
             # Move snake forward, clear direction values if it hits a wall
             if self.direction == 'left':
@@ -145,6 +155,7 @@ class Snake(pygame.sprite.Sprite):
                 if self.head.collidelistall(snake.body):
                     snake.isAlive = False
 
+            # Calc drawing value and  filling area when drawing becomes False
             owned_locations = [key for key, value in area.items() if value == self.colour]
             if self.head.topleft in owned_locations:
                 if self.drawing:
@@ -152,17 +163,19 @@ class Snake(pygame.sprite.Sprite):
                     for rect in self.body:
                         area[rect.topleft] = self.colour
 
-                    owned_locations = [key for key, value in area.items() if value == self.colour]
+                    close_path = bfs_shortest_path(owned_locations, tuple(x/grid_size for x in self.head.topleft), tuple(x/grid_size for x in self.body[-1].topleft)) # shortest path between tail and head
+                    print(owned_locations)
+                    print(self.head.topleft, self.body[-1].topleft)
+                    print(close_path)
 
                     # Get cords of body path
-                    outline = get_outline(owned_locations)
+                    outline = [rect.topleft for rect in self.body] + close_path
 
                     ###  This is not working properly because the outline's order is not always in a continuous line
 
                     # Add all points within path to area
                     new_points = points_within_polygon(outline)
                     for point in new_points:
-                        print(point)
                         area[point] = self.colour
 
                     # Clear the body and drawing value
@@ -171,9 +184,13 @@ class Snake(pygame.sprite.Sprite):
             else:
                 self.drawing = True
 
+            if not self.drawing:
+                if len(self.body) > 1:
+                    self.body.pop()
+
     def draw(self):
         for rect in self.body:
-            pygame.draw.rect(screen, self.colour, rect)
+            pygame.draw.rect(screen, "yellow", rect)
 
         if self.drawing:
             pygame.draw.rect(screen, "purple", self.head)
