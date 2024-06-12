@@ -33,6 +33,9 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return "main_menu"
                 for snake in self.snakes:
                     snake.handle_event(event, self.snakes)
 

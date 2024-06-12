@@ -9,7 +9,7 @@ selected = menu.Menu(window_size, menu="main_menu").run()
 while True:
     match selected:
         case "play":
-            game.Game(window_size).run()
+            selected = game.Game(window_size).run()
         case "quit":
             pygame.quit()
             quit()
