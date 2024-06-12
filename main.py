@@ -116,6 +116,7 @@ class Snake(pygame.sprite.Sprite):
                 area[(location[0] - grid_size + j * grid_size, location[1] - grid_size + i * grid_size)] = self.colour
 
     def handle_event(self, event, snakes):
+        # Handle keydown events for user input to change snake direction
         if event.type == pygame.KEYDOWN:
             if event.key == self.controls[0]:
                 self.direction = 'left'
@@ -126,6 +127,7 @@ class Snake(pygame.sprite.Sprite):
             elif event.key == self.controls[3]:
                 self.direction = 'down'
 
+        # Handle Snake move event if it has a direction
         elif event.type == timer_event and self.direction:
             # Extend body, if not drawing this will be removed later
             self.body.insert(0, self.head.copy())
