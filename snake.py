@@ -72,17 +72,11 @@ class Snake(pygame.sprite.Sprite):
     def __init__(self, game, location, colour, controls, *groups: pygame.sprite.Group):
         super().__init__(*groups)
         self.game = game
+        self.game.snakes.add(self)
 
         self.head = pygame.Rect(location, (game.grid_size, game.grid_size))
         self.body = []
         self.controls = controls
-        self.snakes = game.snakes
-
-        self.sprite = pygame.surface.Surface((game.grid_size, game.grid_size))
-        self.sprite.fill(colour)
-
-        # We add the snakes to a list for easy looping.
-        self.snakes.add(self)
 
         self.drawing = False
         self.direction = None
