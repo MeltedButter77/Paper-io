@@ -198,7 +198,7 @@ class Snake(pygame.sprite.Sprite):
 
     def draw(self):
         for rect in self.body:
-            pygame.draw.rect(screen, "yellow", rect)
+            pygame.draw.rect(screen, self.colour, rect)
 
         if self.drawing:
             pygame.draw.rect(screen, "purple", self.head)
@@ -208,8 +208,9 @@ class Snake(pygame.sprite.Sprite):
 
 # We have created the class, now we need to create objects. This creates instances (in this case 2) of the Snake class allowing us to make as many as we want without having to repeat the snake's logic.
 snakes = pygame.sprite.Group()
-snake1 = Snake((15 * grid_size, 15 * grid_size), pygame.color.Color(200, 0, 0), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN), snakes)
-snake2 = Snake((6 * grid_size, 6 * grid_size), pygame.color.Color(0, 200, 0), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s), snakes)
+Snake((15 * grid_size, 15 * grid_size), pygame.color.Color(200, 0, 0), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN), snakes)
+Snake((6 * grid_size, 6 * grid_size), pygame.color.Color(0, 200, 0), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s), snakes)
+Snake((25 * grid_size, 6 * grid_size), pygame.color.Color(0, 0, 200), (pygame.K_j, pygame.K_l, pygame.K_i, pygame.K_k), snakes)
 
 # This is the entire game loop. Look how much smaller and easier it is to read now that we are using objects!
 while True:
