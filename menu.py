@@ -51,7 +51,7 @@ class Menu:
             self.buttons = [
                 Button(self.screen, 300, 150, 100, 200,  0, 7, "dark green", "white", "green", "play", "Play"),
                 Button(self.screen, 225, 300, 100, 350, 0, 7, "dark blue", "white", "blue", "options_menu", "Options"),
-                Button(self.screen, 300, 450, 100, 200, 0, 7, "dark red", "white", "red", "options_menu", "Quit"),
+                Button(self.screen, 300, 450, 100, 200, 0, 7, "dark red", "white", "red", "quit", "Quit"),
             ]
         elif menu == "options_menu":
             self.buttons = [
