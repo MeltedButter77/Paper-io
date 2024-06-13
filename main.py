@@ -4,11 +4,15 @@ import menu
 
 window_size = (800, 800)
 selected = menu.Menu(window_size, menu="main_menu").run()
+active_game = None
 
 while True:
     match selected:
         case "play":
-            selected = game.Game(window_size).run()
+            active_game = game.Game(window_size)
+            selected = active_game.run()
+        case "resume":
+            selected = active_game.run()
         case "quit":
             pygame.quit()
             quit()
