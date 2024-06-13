@@ -30,4 +30,5 @@ class App:
                     if self.selected is None:
                         self.selected = menu.Menu(self, self.window_size, menu="main_menu").run()
 
+
 App().run()
