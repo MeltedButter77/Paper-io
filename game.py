@@ -1,3 +1,5 @@
+import random
+
 import pygame
 import snake
 
@@ -23,9 +25,14 @@ class Game:
         # We have created the class, now we need to create objects. This creates instances (in this case 2) of the Snake class allowing us to make as many as we want without having to repeat the snake's logic.
         self.snakes = pygame.sprite.Group()
 
-        snake.Snake(self, (15 * self.grid_size, 15 * self.grid_size), pygame.color.Color(200, 0, 0), (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SLASH), self.snakes)
-        snake.Snake(self, (6 * self.grid_size, 6 * self.grid_size), pygame.color.Color(0, 200, 0), (pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_e), self.snakes)
-        snake.Snake(self, (25 * self.grid_size, 6 * self.grid_size), pygame.color.Color(0, 0, 200), (pygame.K_j, pygame.K_l, pygame.K_i, pygame.K_k, pygame.K_o), self.snakes)
+        snake_info = [
+            {"colour": pygame.color.Color(200, 0, 0), "controls": [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SLASH]},
+            {"colour": pygame.color.Color(0, 200, 0), "controls": [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_e]},
+            {"colour": pygame.color.Color(0, 0, 200), "controls": [pygame.K_j, pygame.K_l, pygame.K_i, pygame.K_k, pygame.K_o]},
+        ]
+        for i in range(snake_info.__len__()):
+            snake_pos = (random.randint(0, self.screen.get_width()//self.grid_size) * self.grid_size, random.randint(0, self.screen.get_height()//self.grid_size) * self.grid_size)
+            snake.Snake(self, snake_pos, snake_info[i]["colour"], snake_info[i]["controls"], self.snakes)
 
     def run(self):
         # This is the entire game loop. Look how much smaller and easier it is to read now that we are using objects!
