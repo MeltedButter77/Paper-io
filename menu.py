@@ -46,6 +46,8 @@ class Button:
 class Menu:
     def __init__(self, window_size=(640, 480), menu="main"):
         self.screen = pygame.display.set_mode(window_size)
+        self.clock = pygame.time.Clock()
+        self.fps = 60
 
         if menu == "main_menu":
             self.buttons = [
@@ -81,3 +83,5 @@ class Menu:
                 # only updates screen for an input. This is because menus do not change unless the user interacts with them.
                 pygame.display.update()
                 self.screen.fill((0, 0, 0))
+            self.clock.tick(self.fps)
+            pygame.display.set_caption("FPS: " + str(int(self.clock.get_fps())))

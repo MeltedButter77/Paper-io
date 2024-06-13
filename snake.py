@@ -86,6 +86,9 @@ class Snake(pygame.sprite.Sprite):
         self.body = []
         self.controls = controls
 
+        if len(self.controls) < 5:
+            print("Not enough controls")
+
         self.drawing = False
         self.direction = None
 
@@ -97,7 +100,7 @@ class Snake(pygame.sprite.Sprite):
             for j in range(3):
                 self.game.area[(location[0] - self.game.grid_size + j * self.game.grid_size, location[1] - self.game.grid_size + i * self.game.grid_size)] = self.colour
 
-    def handle_event(self, event, snakes):
+    def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == self.controls[0]:
                 self.direction = 'left'
@@ -107,6 +110,9 @@ class Snake(pygame.sprite.Sprite):
                 self.direction = 'up'
             elif event.key == self.controls[3]:
                 self.direction = 'down'
+            elif event.key == self.controls[4]:
+                print("spawn")
+                self.game.snakes.add(self)
 
         elif event.type == self.game.timer_event and self.direction:
             # Extend body, if not drawing this will be removed later
@@ -122,24 +128,28 @@ class Snake(pygame.sprite.Sprite):
                 if self.head.centerx < 0:
                     self.direction = None
                     self.head.x += self.game.grid_size
+                    self.body.pop(0)
             elif self.direction == 'right':
                 self.head.x += self.game.grid_size
                 if self.head.centerx > self.game.screen.get_width():
                     self.direction = None
                     self.head.x -= self.game.grid_size
+                    self.body.pop(0)
             elif self.direction == 'up':
                 self.head.y -= self.game.grid_size
                 if self.head.centery < 0:
                     self.direction = None
                     self.head.y += self.game.grid_size
+                    self.body.pop(0)
             elif self.direction == 'down':
                 self.head.y += self.game.grid_size
                 if self.head.centery > self.game.screen.get_height():
                     self.direction = None
                     self.head.y -= self.game.grid_size
+                    self.body.pop(0)
 
             # Check collisions with other snakes
-            other_snakes = [snake for snake in snakes if snake != self]
+            other_snakes = [snake for snake in self.game.snakes if snake != self]
             for snake in other_snakes:
                 if self.head.collidelistall(snake.body):
                     snake.kill()
