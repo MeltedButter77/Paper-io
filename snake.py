@@ -103,16 +103,16 @@ class Snake(pygame.sprite.Sprite):
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == self.controls[0]:
-                if self.direction != 'right':
+                if self.direction != 'right' or not self.drawing:
                     self.direction = 'left'
             elif event.key == self.controls[1]:
-                if self.direction != 'left':
+                if self.direction != 'left' or not self.drawing:
                     self.direction = 'right'
             elif event.key == self.controls[2]:
-                if self.direction != 'down':
+                if self.direction != 'down' or not self.drawing:
                     self.direction = 'up'
             elif event.key == self.controls[3]:
-                if self.direction != 'up':
+                if self.direction != 'up' or not self.drawing:
                     self.direction = 'down'
             elif event.key == self.controls[4]:
                 print("spawn") # respawn not working currently
