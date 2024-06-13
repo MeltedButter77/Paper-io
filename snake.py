@@ -2,6 +2,14 @@ import pygame
 from collections import deque
 
 
+def lighten_colour(colour, amount):
+    colour = pygame.Color(colour)
+    colour.r = min(255, colour.r + amount)
+    colour.g = min(255, colour.g + amount)
+    colour.b = min(255, colour.b + amount)
+    return colour
+
+
 def is_point_in_polygon(point, polygon):
     """Uses the ray-casting algorithm to determine if a point is in the polygon."""
     x_intersections = 0
@@ -104,6 +112,10 @@ class Snake(pygame.sprite.Sprite):
             # Extend body, if not drawing this will be removed later
             self.body.insert(0, self.head.copy())
 
+            # When not drawing the body is reduced to a max length of 1
+            if not self.drawing and len(self.body) > 1:
+                self.body.pop()
+
             # Move snake forward, clear direction values if it hits a wall
             if self.direction == 'left':
                 self.head.x -= self.game.grid_size
@@ -131,6 +143,8 @@ class Snake(pygame.sprite.Sprite):
             for snake in other_snakes:
                 if self.head.collidelistall(snake.body):
                     snake.kill()
+            if self.head.collidelistall(self.body):
+                self.kill()
 
             # Calc drawing value and  filling area when drawing becomes False
             owned_locations = [key for key, value in self.game.area.items() if value == self.colour]
@@ -150,8 +164,8 @@ class Snake(pygame.sprite.Sprite):
 
                     # # Display order of outline
                     # for i, pos in enumerate(outline):
-                    #     text_surface = font.render(str(i), False, (255, 0, 0))
-                    #     screen.blit(text_surface, pos)
+                    #     text_surface = self.game.font.render(str(i), False, (255, 0, 0))
+                    #     self.game.screen.blit(text_surface, pos)
                     # pygame.display.update()
                     # input("Press Enter to continue")
 
@@ -167,13 +181,11 @@ class Snake(pygame.sprite.Sprite):
             else:
                 self.drawing = True
 
-            # When not drawing the body is reduced to a max length of 1
-            if not self.drawing and len(self.body) > 1:
-                self.body.pop()
-
     def draw(self):
-        for rect in self.body:
-            pygame.draw.rect(self.game.screen, self.colour, rect)
+        for i, rect in enumerate(self.body):
+            pygame.draw.rect(self.game.screen, lighten_colour(self.colour, 35), rect)
+            if i == len(self.body) - 1:
+                pygame.draw.rect(self.game.screen, self.colour, rect)
 
         if self.drawing:
             pygame.draw.rect(self.game.screen, "purple", self.head)
