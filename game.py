@@ -16,9 +16,9 @@ class Game:
         self.grid_size = 20
 
         # Create a "timer_event" which will be triggered evey "time_delay" milliseconds. This will act as an event which will be processed in the event loop.
-        time_delay = 200
+        self.time_delay = 140
         self.timer_event = pygame.USEREVENT + 1
-        pygame.time.set_timer(self.timer_event, time_delay)
+        pygame.time.set_timer(self.timer_event, self.time_delay)
 
         self.area = {}
 
@@ -47,6 +47,9 @@ class Game:
                         return "main_menu"
                 for snake in self.snakes:
                     snake.handle_event(event)
+
+            for snake in self.snakes:
+                snake.update_display_rect()
 
             # Rendering
             for loc, colour in self.area.items():

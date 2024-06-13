@@ -83,6 +83,8 @@ class Snake(pygame.sprite.Sprite):
         self.game.snakes.add(self)
 
         self.head = pygame.Rect(location, (game.grid_size, game.grid_size))
+        self.display_rect = self.head.copy()
+        self.display_position = pygame.Vector2(location)
         self.body = []
         self.controls = controls
 
@@ -91,6 +93,7 @@ class Snake(pygame.sprite.Sprite):
 
         self.drawing = False
         self.direction = None
+        self.input_direction = None
 
         self.colour = pygame.color.Color(colour)
 
@@ -104,53 +107,60 @@ class Snake(pygame.sprite.Sprite):
         if event.type == pygame.KEYDOWN:
             if event.key == self.controls[0]:
                 if self.direction != 'right' or not self.drawing:
-                    self.direction = 'left'
+                    self.input_direction = 'left'
             elif event.key == self.controls[1]:
                 if self.direction != 'left' or not self.drawing:
-                    self.direction = 'right'
+                    self.input_direction = 'right'
             elif event.key == self.controls[2]:
                 if self.direction != 'down' or not self.drawing:
-                    self.direction = 'up'
+                    self.input_direction = 'up'
             elif event.key == self.controls[3]:
                 if self.direction != 'up' or not self.drawing:
-                    self.direction = 'down'
+                    self.input_direction = 'down'
             elif event.key == self.controls[4]:
                 print("spawn") # respawn not working currently
                 self.game.snakes.add(self)
 
-        elif event.type == self.game.timer_event and self.direction:
-            # Extend body, if not drawing this will be removed later
-            self.body.insert(0, self.head.copy())
+        elif event.type == self.game.timer_event and (self.direction or self.input_direction):
+            if self.direction:
+                # Extend body, if not drawing this will be removed later
+                self.body.insert(0, self.head.copy())
 
-            # When not drawing the body is reduced to a max length of 1
-            if not self.drawing and len(self.body) > 1:
-                self.body.pop()
+                # When not drawing the body is reduced to a max length of 1
+                if not self.drawing and len(self.body) > 1:
+                    self.body.pop()
 
-            # Move snake forward, clear direction values if it hits a wall
-            if self.direction == 'left':
-                self.head.x -= self.game.grid_size
-                if self.head.centerx < 0:
-                    self.direction = None
-                    self.head.x += self.game.grid_size
-                    self.body.pop(0)
-            elif self.direction == 'right':
-                self.head.x += self.game.grid_size
-                if self.head.centerx > self.game.screen.get_width():
-                    self.direction = None
+                # Move snake forward, clear direction values if it hits a wall
+                if self.direction == 'left':
                     self.head.x -= self.game.grid_size
-                    self.body.pop(0)
-            elif self.direction == 'up':
-                self.head.y -= self.game.grid_size
-                if self.head.centery < 0:
-                    self.direction = None
-                    self.head.y += self.game.grid_size
-                    self.body.pop(0)
-            elif self.direction == 'down':
-                self.head.y += self.game.grid_size
-                if self.head.centery > self.game.screen.get_height():
-                    self.direction = None
+                    if self.head.centerx < 0:
+                        self.direction = None
+                        self.head.x += self.game.grid_size
+                        self.body.pop(0)
+                elif self.direction == 'right':
+                    self.head.x += self.game.grid_size
+                    if self.head.centerx > self.game.screen.get_width():
+                        self.direction = None
+                        self.head.x -= self.game.grid_size
+                        self.body.pop(0)
+                elif self.direction == 'up':
                     self.head.y -= self.game.grid_size
-                    self.body.pop(0)
+                    if self.head.centery < 0:
+                        self.direction = None
+                        self.head.y += self.game.grid_size
+                        self.body.pop(0)
+                elif self.direction == 'down':
+                    self.head.y += self.game.grid_size
+                    if self.head.centery > self.game.screen.get_height():
+                        self.direction = None
+                        self.head.y -= self.game.grid_size
+                        self.body.pop(0)
+
+            # Direction is stored as self.input direction until after the next move has occurred.
+            # This stops the square moving in the preferred direction before the display_rect has reached the next square
+            self.direction = self.input_direction
+            self.display_position = pygame.Vector2(self.head.topleft)
+            self.display_rect = self.head.copy()
 
             # Check collisions with other snakes
             other_snakes = [snake for snake in self.game.snakes if snake != self]
@@ -160,7 +170,7 @@ class Snake(pygame.sprite.Sprite):
             if self.head.collidelistall(self.body):
                 self.kill()
 
-            # Calc drawing value and  filling area when drawing becomes False
+            # Calc drawing value and filling area when drawing becomes False
             owned_locations = [key for key, value in self.game.area.items() if value == self.colour]
             if self.head.topleft in owned_locations:
                 if self.drawing:
@@ -195,13 +205,30 @@ class Snake(pygame.sprite.Sprite):
             else:
                 self.drawing = True
 
+    def update_display_rect(self):
+        move_amount = (self.game.grid_size / self.game.time_delay * 1000) * (1/self.game.fps)
+
+        if self.direction == 'left':
+            self.display_position.x -= move_amount
+        elif self.direction == 'right':
+            self.display_position.x += move_amount
+        elif self.direction == 'up':
+            self.display_position.y -= move_amount
+        elif self.direction == 'down':
+            self.display_position.y += move_amount
+
+        self.display_rect.topleft = self.display_position
+
     def draw(self):
         for i, rect in enumerate(self.body):
             pygame.draw.rect(self.game.screen, lighten_colour(self.colour, 35), rect)
             if i == len(self.body) - 1:
                 pygame.draw.rect(self.game.screen, self.colour, rect)
 
+
         if self.drawing:
-            pygame.draw.rect(self.game.screen, "purple", self.head)
+            pygame.draw.rect(self.game.screen, lighten_colour(self.colour, 35), self.head)
+            pygame.draw.rect(self.game.screen, "purple", self.display_rect)
         else:
-            pygame.draw.rect(self.game.screen, "black", self.head)
+            pygame.draw.rect(self.game.screen, self.colour, self.head)
+            pygame.draw.rect(self.game.screen, "black", self.display_rect)
