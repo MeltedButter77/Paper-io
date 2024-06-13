@@ -235,7 +235,6 @@ class Snake(pygame.sprite.Sprite):
             if i == len(self.body) - 1:
                 pygame.draw.rect(self.game.screen, self.colour, rect)
 
-
         if self.drawing:
             pygame.draw.rect(self.game.screen, lighten_colour(self.colour, 35), self.head)
             pygame.draw.rect(self.game.screen, "purple", self.display_rect)
