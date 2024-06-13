@@ -219,6 +219,16 @@ class Snake(pygame.sprite.Sprite):
 
         self.display_rect.topleft = self.display_position
 
+        # make sure display_rect cannot go off-screen to fix any visual artifacts
+        if self.display_rect.left < 0:
+            self.display_rect.left = 0
+        if self.display_rect.top < 0:
+            self.display_rect.top = 0
+        if self.display_rect.right > self.game.screen.get_width():
+            self.display_rect.right = self.game.screen.get_width()
+        if self.display_rect.bottom > self.game.screen.get_height():
+            self.display_rect.bottom = self.game.screen.get_height()
+
     def draw(self):
         for i, rect in enumerate(self.body):
             pygame.draw.rect(self.game.screen, lighten_colour(self.colour, 35), rect)
