@@ -19,28 +19,31 @@ class Button:
         self.hover_colour = hoverColour
         self.id = id
         self.text = text
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
-    def drawRect(self, event):
-        button = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.highlighted = False
 
-        if event.type == pygame.MOUSEMOTION and button.collidepoint(event.pos):
-            pygame.draw.rect(self.screen, self.hover_colour, button, self.border, self.curve)
+    def update(self, event):
+        if not hasattr(event, "pos"):
+            return
+
+        if self.rect.collidepoint(event.pos):
+            self.highlighted = True
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                return True
+        elif not self.rect.collidepoint(event.pos):
+            self.highlighted = False
+
+    def drawButton(self):
+        if self.highlighted:
+            pygame.draw.rect(self.screen, self.hover_colour, self.rect, self.border, self.curve)
         else:
-            pygame.draw.rect(self.screen, self.buttonColour, button, self.border, self.curve)
+            pygame.draw.rect(self.screen, self.buttonColour, (self.x, self.y, self.width, self.height), self.border, self.curve)
 
         if self.text != "":
-            self.drawText()
-
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if button.collidepoint(event.pos):
-                return True
-
-        return False
-
-    def drawText(self):
-        text_surf = self.font.render(self.text, True, self.textColour)
-        text_rect = text_surf.get_rect(center=(self.x + self.width // 2, self.y + self.height // 2))
-        self.screen.blit(text_surf, text_rect)
+            text_surf = self.font.render(self.text, True, self.textColour)
+            text_rect = text_surf.get_rect(center=(self.x + self.width // 2, self.y + self.height // 2))
+            self.screen.blit(text_surf, text_rect)
 
 
 class Menu:
@@ -77,12 +80,13 @@ class Menu:
                     quit()
 
                 for button in self.buttons:
-                    if button.drawRect(event):
-                        if button.id != "":
-                            return button.id
+                    if button.update(event) and button.id:
+                        return button.id
 
-                # only updates screen for an input. This is because menus do not change unless the user interacts with them.
-                pygame.display.update()
-                self.screen.fill((0, 0, 0))
+            for button in self.buttons:
+                button.drawButton()
+
+            pygame.display.update()
+            self.screen.fill((60, 60, 60))
             self.clock.tick(self.fps)
             pygame.display.set_caption("FPS: " + str(int(self.clock.get_fps())))
