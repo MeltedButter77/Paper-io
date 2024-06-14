@@ -31,7 +31,7 @@ class Game:
             {"colour": pygame.color.Color(0, 0, 200), "controls": [pygame.K_j, pygame.K_l, pygame.K_i, pygame.K_k, pygame.K_o]},
         ]
         for i in range(snake_info.__len__()):
-            snake_pos = (random.randint(0, self.screen.get_width()//self.grid_size) * self.grid_size, random.randint(0, self.screen.get_height()//self.grid_size) * self.grid_size)
+            snake_pos = (random.randint(0, (self.screen.get_width()//self.grid_size) - 1) * self.grid_size, random.randint(0, (self.screen.get_height()//self.grid_size) - 1) * self.grid_size)
             snake.Snake(self, snake_pos, snake_info[i]["colour"], snake_info[i]["controls"], self.snakes)
 
     def run(self):
