@@ -13,8 +13,6 @@ time_delay = 200
 timer_event = pygame.USEREVENT + 1
 pygame.time.set_timer(timer_event, time_delay)
 
-# This area will be a dictionary of all points with the key as their location and the value as its colour.
-# This ensures that each point can only have 1 colour
 area = {}
 
 
@@ -84,29 +82,26 @@ def bfs_shortest_path(grid, start, end, grid_size):
     return []
 
 
-# This class uses the class of pygame.sprite.Sprite as its base.
-# This allows the use of pygame.sprite.Group to manage which snakes are alive.
 class Snake(pygame.sprite.Sprite):
-    # This init method's inputs area all the unique things about each snake. Its starting locatiom, colour and controls
-    # A *groups input is used to add the snake to a group of snakes.
     def __init__(self, location, colour, controls, *groups: pygame.sprite.Group):
         super().__init__(*groups)
 
-        # The head is detached enabling us to move the head and add a copy of it to the body every frame.
-        # This makes it easier to conceptualize where the head is.
         self.head = pygame.Rect(location, (grid_size, grid_size))
+
         self.body = []
         self.controls = controls
+        self.snakes = snakes
 
-        # We add the snake its group for managing multiple snakes
-        snakes.add(self)
+        self.sprite = pygame.surface.Surface((grid_size, grid_size))
+        self.sprite.fill(colour)
 
-        # drawing variable allows us to track when the snake is inside or outside its area
+        # We add the snakes to a list for easy looping.
+        self.snakes.add(self)
+
         self.drawing = False
-        # the snake will be moved in direction every move event.
-        # This allows the player to update the direction inbetween move events.
+        self.isAlive = True
         self.direction = None
-        # Set the snake's colour to a pygame.color.Color object.
+
         self.colour = pygame.color.Color(colour)
 
         # Fill 9 squares around location
@@ -116,7 +111,10 @@ class Snake(pygame.sprite.Sprite):
                 area[(location[0] - grid_size + j * grid_size, location[1] - grid_size + i * grid_size)] = self.colour
 
     def handle_event(self, event, snakes):
-        # Handle keydown events for user input to change snake direction
+        if not self.isAlive:
+            self.kill()
+            return
+
         if event.type == pygame.KEYDOWN:
             if event.key == self.controls[0]:
                 self.direction = 'left'
@@ -127,7 +125,6 @@ class Snake(pygame.sprite.Sprite):
             elif event.key == self.controls[3]:
                 self.direction = 'down'
 
-        # Handle Snake move event if it has a direction
         elif event.type == timer_event and self.direction:
             # Extend body, if not drawing this will be removed later
             self.body.insert(0, self.head.copy())
@@ -152,13 +149,13 @@ class Snake(pygame.sprite.Sprite):
                 self.head.y += grid_size
                 if self.head.centery > screen.get_height():
                     self.direction = None
-                    self.head.y -= grid_size
+                    self.head.x -= grid_size
 
             # Check collisions with other snakes
             other_snakes = [snake for snake in snakes if snake != self]
             for snake in other_snakes:
                 if self.head.collidelistall(snake.body):
-                    snake.kill()
+                    snake.isAlive = False
 
             # Calc drawing value and  filling area when drawing becomes False
             owned_locations = [key for key, value in area.items() if value == self.colour]
