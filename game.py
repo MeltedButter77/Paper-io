@@ -54,7 +54,6 @@ class Game:
             if len(self.snakes) < len(self.players):
                 for player in self.players:
                     if player["colour"] not in [snake.colour for snake in self.snakes]:
-                        print("respawning: ", player["colour"])
                         snake_pos = (random.randint(0, (self.screen.get_width() // self.grid_size) - 1) * self.grid_size, random.randint(0, (self.screen.get_height() // self.grid_size) - 1) * self.grid_size)
                         snakefile.Snake(self, snake_pos, player["colour"], player["controls"], self.snakes)
 
