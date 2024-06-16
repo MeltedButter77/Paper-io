@@ -205,7 +205,7 @@ class Snake(pygame.sprite.Sprite):
                     snake.kill()
                     del snake
             if self.head.collidelistall(self.body):
-                self.game.area = {location: colour for location, colour in self.game.area.items() if colour == self.colour}
+                self.game.area = {location: colour for location, colour in self.game.area.items() if colour != self.colour}
                 self.kill()
                 del self
 
