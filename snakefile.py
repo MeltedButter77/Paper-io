@@ -88,7 +88,7 @@ class Snake(pygame.sprite.Sprite):
         self.body = []
         self.controls = controls
 
-        if len(self.controls) < 5:
+        if len(self.controls) < 4:
             print("Not enough controls")
 
         self.drawing = False

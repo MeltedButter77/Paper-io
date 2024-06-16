@@ -26,9 +26,9 @@ class Game:
         self.snakes = pygame.sprite.Group()
 
         self.players = [
-            {"display": "Red", "colour": pygame.color.Color(200, 0, 0), "controls": [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SLASH]},
-            {"display": "Green", "colour": pygame.color.Color(0, 200, 0), "controls": [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_e]},
-            {"display": "Blue", "colour": pygame.color.Color(0, 0, 200), "controls": [pygame.K_j, pygame.K_l, pygame.K_i, pygame.K_k, pygame.K_o]},
+            {"display": "Red", "colour": pygame.color.Color(200, 0, 0), "controls": [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]},
+            {"display": "Green", "colour": pygame.color.Color(0, 200, 0), "controls": [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s]},
+            {"display": "Blue", "colour": pygame.color.Color(0, 0, 200), "controls": [pygame.K_j, pygame.K_l, pygame.K_i, pygame.K_k]},
         ]
         for i in range(self.players.__len__()):
             snake_pos = (random.randint(0, (self.screen.get_width()//self.grid_size) - 1) * self.grid_size, random.randint(0, (self.screen.get_height()//self.grid_size) - 1) * self.grid_size)
