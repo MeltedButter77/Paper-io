@@ -197,7 +197,7 @@ class Snake(pygame.sprite.Sprite):
             # Check death cases
             other_snakes = [snake for snake in self.game.snakes if snake != self]
             for snake in other_snakes:
-                if self.head.collidelistall(snake.body):
+                if self.head.collidelistall(snake.body) and snake.drawing:
                     self.game.area = {location: colour for location, colour in self.game.area.items() if colour != snake.colour}
                     snake.kill()
                     del snake
