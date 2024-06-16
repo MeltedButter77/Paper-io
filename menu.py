@@ -34,7 +34,7 @@ class Button:
         elif not self.rect.collidepoint(event.pos):
             self.highlighted = False
 
-    def drawButton(self):
+    def draw(self):
         if self.highlighted:
             pygame.draw.rect(self.screen, self.hover_colour, self.rect, self.border, self.curve)
         else:
@@ -56,7 +56,6 @@ class Menu:
             self.buttons = [
                 Button(self.screen, 300, 250, 100, 200,  0, 7, "dark green", "white", "green", "play", "Play"),
                 Button(self.screen, 225, 400, 100, 350, 0, 7, "dark blue", "white", "blue", "options_menu", "Options"),
-                Button(self.screen, 300, 550, 100, 200, 0, 7, "dark red", "white", "red", "quit", "Quit"),
             ]
             if app.active_game:
                 self.buttons.append(Button(self.screen, 225, 100, 100, 350, 0, 7, "dark green", "white", "green", "resume", "Resume"))
@@ -75,6 +74,8 @@ class Menu:
 
         while True:
             for event in pygame.event.get():
+                print(event)
+
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     quit()
@@ -84,7 +85,7 @@ class Menu:
                         return button.id
 
             for button in self.buttons:
-                button.drawButton()
+                button.draw()
 
             pygame.display.update()
             self.screen.fill((60, 60, 60))

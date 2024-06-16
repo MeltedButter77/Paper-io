@@ -162,14 +162,6 @@ class Snake(pygame.sprite.Sprite):
             self.display_position = pygame.Vector2(self.head.topleft)
             self.display_rect = self.head.copy()
 
-            # Check collisions with other snakes
-            other_snakes = [snake for snake in self.game.snakes if snake != self]
-            for snake in other_snakes:
-                if self.head.collidelistall(snake.body):
-                    snake.kill()
-            if self.head.collidelistall(self.body):
-                self.kill()
-
             # Calc drawing value and filling area when drawing becomes False
             owned_locations = [key for key, value in self.game.area.items() if value == self.colour]
             if self.head.topleft in owned_locations:
@@ -204,6 +196,18 @@ class Snake(pygame.sprite.Sprite):
                     self.drawing = False
             else:
                 self.drawing = True
+
+            # Check death cases
+            other_snakes = [snake for snake in self.game.snakes if snake != self]
+            for snake in other_snakes:
+                if self.head.collidelistall(snake.body):
+                    self.game.area = {location: colour for location, colour in self.game.area.items() if colour != snake.colour}
+                    snake.kill()
+                    del snake
+            if self.head.collidelistall(self.body):
+                self.game.area = {location: colour for location, colour in self.game.area.items() if colour == self.colour}
+                self.kill()
+                del self
 
     def update_display_rect(self):
         move_amount = (self.game.grid_size / self.game.time_delay * 1000) * (1/self.game.fps)
