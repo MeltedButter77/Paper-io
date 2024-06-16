@@ -8,7 +8,7 @@ class Game:
     def __init__(self, window_size=(640, 480)):
         pygame.init()
         pygame.font.init()
-        self.font = pygame.font.SysFont('Comic Sans MS', 10)
+        self.font = pygame.font.Font('freesansbold.ttf', 35)
 
         self.screen = pygame.display.set_mode(window_size)
         self.clock = pygame.time.Clock()
@@ -26,9 +26,9 @@ class Game:
         self.snakes = pygame.sprite.Group()
 
         self.players = [
-            {"colour": pygame.color.Color(200, 0, 0), "controls": [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SLASH]},
-            {"colour": pygame.color.Color(0, 200, 0), "controls": [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_e]},
-            {"colour": pygame.color.Color(0, 0, 200), "controls": [pygame.K_j, pygame.K_l, pygame.K_i, pygame.K_k, pygame.K_o]},
+            {"display": "Red", "colour": pygame.color.Color(200, 0, 0), "controls": [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SLASH]},
+            {"display": "Green", "colour": pygame.color.Color(0, 200, 0), "controls": [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_e]},
+            {"display": "Blue", "colour": pygame.color.Color(0, 0, 200), "controls": [pygame.K_j, pygame.K_l, pygame.K_i, pygame.K_k, pygame.K_o]},
         ]
         for i in range(self.players.__len__()):
             snake_pos = (random.randint(0, (self.screen.get_width()//self.grid_size) - 1) * self.grid_size, random.randint(0, (self.screen.get_height()//self.grid_size) - 1) * self.grid_size)
@@ -63,6 +63,12 @@ class Game:
                 pygame.draw.rect(self.screen, colour, pygame.Rect(loc, (self.grid_size, self.grid_size)))
             for snake in self.snakes:
                 snake.draw()
+
+            # draw text
+            for i, player in enumerate(self.players):
+                score = sum(1 for colour in self.area.values() if colour == player["colour"])
+                text = self.font.render(f"{player['display']}: {score}", True, "white")
+                self.screen.blit(text, (0, i * 30))
 
             # Don't forget to update the screen after rendering
             pygame.display.update()
