@@ -88,7 +88,7 @@ class Snake(pygame.sprite.Sprite):
         self.body = []
         self.controls = controls
 
-        if len(self.controls) < 5:
+        if len(self.controls) < 4:
             print("Not enough controls")
 
         self.drawing = False
@@ -117,9 +117,6 @@ class Snake(pygame.sprite.Sprite):
             elif event.key == self.controls[3]:
                 if self.direction != 'up' or not self.drawing:
                     self.input_direction = 'down'
-            elif event.key == self.controls[4]:
-                print("spawn") # respawn not working currently
-                self.game.snakes.add(self)
 
         elif event.type == self.game.timer_event and (self.direction or self.input_direction):
             if self.direction:
