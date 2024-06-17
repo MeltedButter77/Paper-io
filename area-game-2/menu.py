@@ -1,3 +1,4 @@
+import asyncio
 import pygame
 
 
@@ -47,8 +48,8 @@ class Button:
 
 
 class Menu:
-    def __init__(self, app, window_size=(640, 480), menu="main_menu"):
-        self.screen = pygame.display.set_mode(window_size)
+    def __init__(self, main_screen, active_game, menu="main_menu"):
+        self.screen = main_screen
         self.clock = pygame.time.Clock()
         self.fps = 60
 
@@ -57,7 +58,7 @@ class Menu:
                 Button(self.screen, 300, 250, 100, 200,  0, 7, "dark green", "white", "green", "play", "Play"),
                 Button(self.screen, 225, 400, 100, 350, 0, 7, "dark blue", "white", "blue", "options_menu", "Options"),
             ]
-            if app.active_game:
+            if active_game:
                 self.buttons.append(Button(self.screen, 225, 100, 100, 350, 0, 7, "dark green", "white", "green", "resume", "Resume"))
         elif menu == "options_menu":
             self.buttons = [
@@ -74,8 +75,6 @@ class Menu:
 
         while True:
             for event in pygame.event.get():
-                print(event)
-
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     quit()

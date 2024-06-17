@@ -2,33 +2,40 @@ import pygame
 import game
 import menu
 
+pygame.init()
+pygame.font.init()
 
-class App:
-    def __init__(self):
-        self.window_size = (800, 800)
-        self.active_game = None
-        self.selected = menu.Menu(self, self.window_size, menu="main_menu").run()
-
-    def run(self):
-        while True:
-            match self.selected:
-                case "play":
-                    self.active_game = game.Game(self.window_size)
-                    self.selected = self.active_game.run()
-                case "resume":
-                    self.selected = self.active_game.run()
-                case "quit":
-                    pygame.quit()
-                    quit()
-
-                # if the button does not return an action case
-                # send button's id to the menu selector
-                case _:
-                    self.selected = menu.Menu(self, self.window_size, menu=self.selected).run()
-
-                    # Handle invalid menu case
-                    if self.selected is None:
-                        self.selected = menu.Menu(self, self.window_size, menu="main_menu").run()
+window_size = (800, 800)
+main_screen = pygame.display.set_mode(window_size)
 
 
-App().run()
+def main_loop():
+    active_game = None
+    selected = menu.Menu(main_screen, active_game, menu="main_menu").run()
+    while True:
+        match selected:
+            case "play":
+                active_game = game.Game(main_screen)
+                selected = active_game.run()
+            case "resume":
+                selected = active_game.run()
+            case "quit":
+                pygame.quit()
+                quit()
+
+            # if the button does not return an action case
+            # send button's id to the menu selector
+            case _:
+                selected = menu.Menu(main_screen, active_game, menu=selected).run()
+
+                # Handle invalid menu case
+                if selected is None:
+                    selected = menu.Menu(main_screen, active_game, menu="main_menu").run()
+
+
+main_loop()
+
+# pip install pygbag
+# Add asyncio.run and make sure main function is async
+# Add asyncio.sleep(0) in the main loop
+# Use pygbag [folder] command to test

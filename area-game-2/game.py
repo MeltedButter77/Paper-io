@@ -5,12 +5,10 @@ import snakefile
 
 
 class Game:
-    def __init__(self, window_size=(640, 480)):
-        pygame.init()
-        pygame.font.init()
+    def __init__(self, main_screen):
         self.font = pygame.font.Font('freesansbold.ttf', 35)
 
-        self.screen = pygame.display.set_mode(window_size)
+        self.screen = main_screen
         self.clock = pygame.time.Clock()
         self.fps = 60
         self.grid_size = 20
