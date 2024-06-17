@@ -35,7 +35,8 @@ def main_loop():
 
 main_loop()
 
-# pip install pygbag
-# Add asyncio.run and make sure main function is async
-# Add asyncio.sleep(0) in the main loop
-# Use pygbag [folder] command to test
+# Install pyinstaller command:
+# pip install pyinstaller
+
+# Create .exe file with the following command:
+# pyinstaller main.py --onefile --windowed
