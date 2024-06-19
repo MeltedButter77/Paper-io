@@ -2,22 +2,37 @@ import random
 import sys
 import pygame
 import copy
+
+# Boiler plate code for pygame
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
 font = pygame.font.SysFont("Segoe UI", 35)
 
 grid_size = 40
+# Creates head variable as a Rect object which we will move around the screen.
 head = pygame.Rect(grid_size * 5, grid_size * 5, grid_size, grid_size)
+
+# Creates a body list which has Rect objects within it. 
+# This allows us to easily add more bodies to the list to extend the snake. **This is an important idea**
 body = [
-    pygame.Rect(grid_size * 4, grid_size * 5, grid_size, grid_size)
+    pygame.Rect(grid_size * 4, grid_size * 5, grid_size, grid_size),
 ]
+# Direction variable allows the snake to travel in a direction different to the user input
 direction = None
 
+# Creates a Rect object to represent the apple
 apple = pygame.Rect(grid_size * 3, grid_size * 3, grid_size, grid_size)
 
-pygame.time.set_timer(pygame.USEREVENT, 250)
+# Create a custom event which is added to the event loop every 0.25 seconds
+move_event = pygame.USEREVENT + 1
+pygame.time.set_timer(move_event, 250)
+
+# Create a variable to keep track of whether the snake is alive or dead
 isAlive = True
+
+# Create the main game loop
 while True:
+    # Run the event code for every event in the pygame.event.get() list
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -45,10 +60,10 @@ while True:
                 body = [
                     pygame.Rect(grid_size * 4, grid_size * 5, grid_size, grid_size)
                 ]
-                direction = "up"
+                direction = None
                 isAlive = True
 
-        if event.type == pygame.USEREVENT and isAlive:
+        if event.type == move_event and isAlive:
             if direction == "right":
                 body.insert(0, copy.copy(head))
                 head.x = head.x + grid_size
