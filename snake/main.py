@@ -116,6 +116,12 @@ while True:
             # If moving, remove the last segment
             if direction:
                 body.pop()
+    
+    # This is the rendering part of the code. Things rendered first can be drawn over by things rendered after them. 
+    # This is the required rendering order for each frame:
+    # 1. Fill the screen surface with your background colour
+    # 2. Draw your game elements, things you want to be drawn on top should be drawn last
+    # 3. Update the screen surface with pygame.display.update()
 
     # Rendering every frame
     screen.fill((64, 64, 64))
@@ -137,5 +143,6 @@ while True:
     if not isAlive:
         textsurface = font.render("GAME OVER", False, "red")  # "text", antialias, color
         screen.blit(textsurface, (200, 200))
-    
+
+    # Update the screen
     pygame.display.update()
