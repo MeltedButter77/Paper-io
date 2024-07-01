@@ -177,8 +177,9 @@ class Snake(pygame.sprite.Sprite):
 
                     # # Display order of outline
                     # for i, pos in enumerate(outline):
-                    #     text_surface = self.game.font.render(str(i), False, (255, 0, 0))
-                    #     self.game.screen.blit(text_surface, pos)
+                    #     pygame.draw.rect(self.game.screen, "green", pygame.Rect(pos, (self.game.grid_size, self.game.grid_size)))
+                    #     # text_surface = self.game.font.render(str(i), False, (255, 0, 0))
+                    #     # self.game.screen.blit(text_surface, pos)
                     # pygame.display.update()
                     # input("Press Enter to continue")
 
